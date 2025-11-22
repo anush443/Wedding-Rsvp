@@ -1,28 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  /* Elegant Dark Theme - Rich, Sophisticated Colors */
-  --color-background: 240 10% 4%;
-  --color-foreground: 0 0% 98%;
-  --color-card: 240 8% 8%;
-  --color-card-foreground: 0 0% 98%;
-  --color-popover: 240 8% 8%;
-  --color-popover-foreground: 0 0% 98%;
-  --color-primary: 43 74% 66%;
-  --color-primary-foreground: 240 10% 4%;
-  --color-secondary: 240 6% 12%;
-  --color-secondary-foreground: 0 0% 98%;
-  --color-muted: 240 5% 15%;
-  --color-muted-foreground: 240 5% 65%;
-  --color-accent: 43 50% 50%;
+  /* Figma Design Colors - Light Beige Background with Dark Green Border */
+  --color-background: 40 20% 95%;
+  --color-foreground: 0 0% 20%;
+  --color-card: 40 15% 98%;
+  --color-card-foreground: 0 0% 20%;
+  --color-popover: 40 15% 98%;
+  --color-popover-foreground: 0 0% 20%;
+  --color-primary: 0 0% 20%;
+  --color-primary-foreground: 0 0% 98%;
+  --color-secondary: 40 10% 90%;
+  --color-secondary-foreground: 0 0% 20%;
+  --color-muted: 40 10% 85%;
+  --color-muted-foreground: 0 0% 40%;
+  --color-accent: 0 0% 25%;
   --color-accent-foreground: 0 0% 98%;
   --color-destructive: 0 84% 60%;
   --color-destructive-foreground: 0 0% 98%;
-  --color-border: 240 6% 18%;
-  --color-input: 240 6% 18%;
-  --color-ring: 43 74% 66%;
+  --color-border: 120 30% 25%;
+  --color-input: 40 10% 90%;
+  --color-ring: 0 0% 20%;
   --radius: 0.75rem;
-  
+
   --background: hsl(var(--color-background));
   --foreground: hsl(var(--color-foreground));
   --card: hsl(var(--color-card));
@@ -48,17 +48,20 @@
   border-color: hsl(var(--color-border));
 }
 
+html {
+  background: hsl(var(--color-background));
+}
+
 body {
-  background: 
-    radial-gradient(ellipse at top, rgba(184, 134, 11, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom, rgba(139, 90, 43, 0.08) 0%, transparent 50%),
-    linear-gradient(180deg, hsl(240 10% 4%) 0%, hsl(240 8% 6%) 100%);
-  background-attachment: fixed;
+  background: hsl(var(--color-background));
   color: hsl(var(--color-foreground));
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 
 /* Elegant Typography */
@@ -68,6 +71,10 @@ body {
 
 .font-elegant {
   font-family: "Cormorant Garamond", serif;
+}
+
+.font-handwritten {
+  font-family: "Dancing Script", cursive;
 }
 
 /* Smooth Animations */
@@ -92,7 +99,8 @@ body {
 }
 
 @keyframes shimmer {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
@@ -101,7 +109,8 @@ body {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -110,7 +119,8 @@ body {
 }
 
 @keyframes sparkle {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.4;
     transform: scale(1);
   }
@@ -138,49 +148,16 @@ body {
 
 /* Gradient Text */
 .gradient-text {
-  background: linear-gradient(
-    135deg,
-    hsl(43 74% 66%) 0%,
-    hsl(45 60% 75%) 50%,
-    hsl(43 74% 66%) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  background-size: 200% 200%;
-  animation: shimmer 3s ease-in-out infinite;
+  color: hsl(var(--color-foreground));
 }
 
 /* Elegant Card Styles */
 .elegant-card {
-  background: linear-gradient(
-    135deg,
-    hsl(240 8% 8% / 0.95) 0%,
-    hsl(240 6% 10% / 0.95) 100%
-  );
-  backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid hsl(var(--color-border));
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    0 0 0 1px hsl(var(--color-border) / 0.1),
-    inset 0 1px 0 hsl(var(--color-foreground) / 0.05);
+  background: hsl(var(--color-card));
+  border: 1px solid hsl(var(--color-border) / 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
-}
-
-.elegant-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    hsl(var(--color-primary) / 0.3),
-    transparent
-  );
 }
 
 /* Scrollbar Styling */
@@ -193,17 +170,17 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--color-border));
+  background: hsl(0 0% 60%);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--color-primary) / 0.5);
+  background: hsl(0 0% 50%);
 }
 
 /* Selection */
 ::selection {
-  background: hsl(var(--color-primary) / 0.3);
+  background: hsl(0 0% 20% / 0.2);
   color: hsl(var(--color-foreground));
 }
 
