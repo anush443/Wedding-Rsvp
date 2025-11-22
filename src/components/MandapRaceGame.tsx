@@ -7,7 +7,7 @@ type Phase = "select" | "running" | "gameover"
 type ObstacleType = {
   id: string
   label: string
-  emoji: string
+  imageUrl: string
   width: number
   height: number
   baseY: number
@@ -32,80 +32,113 @@ const TRACK_WIDTH = 860
 // Runner base position is at bottom-16 (64px from container bottom)
 const RUNNER_BASE_Y = 64
 
-const obstacleCatalog: ObstacleType[] = [
+// Dummy image URL - replace with actual images later
+const DUMMY_IMAGE_URL = "https://i.ibb.co/sdDkqHNy/pexels-catscoming-978555.jpg"
+
+// Bride-specific obstacles
+const brideObstacles: ObstacleType[] = [
   {
     id: "flowers",
     label: "Flower Basket",
-    emoji: "💐",
+    imageUrl: DUMMY_IMAGE_URL,
     width: 72,
     height: 78,
-    // baseY is distance from container bottom - set to ground baseline
-    baseY: RUNNER_BASE_Y, // Ground obstacle - sits on ground baseline
-  },
-  {
-    id: "dhol",
-    label: "Mini Dhol",
-    emoji: "🥁",
-    width: 74,
-    height: 74,
-    baseY: RUNNER_BASE_Y, // Ground obstacle - sits on ground baseline
+    baseY: RUNNER_BASE_Y,
   },
   {
     id: "thali",
     label: "Pooja Thali",
-    emoji: "🪔",
+    imageUrl: DUMMY_IMAGE_URL,
     width: 68,
     height: 68,
-    // Fixed: was floating 6px above ground, now sits on ground baseline
-    baseY: RUNNER_BASE_Y, // Ground obstacle - sits on ground baseline
+    baseY: RUNNER_BASE_Y,
   },
   {
     id: "confetti",
     label: "Petal Shower",
-    emoji: "🌸",
+    imageUrl: DUMMY_IMAGE_URL,
     width: 60,
     height: 60,
-    baseY: RUNNER_BASE_Y + 120, // Air obstacle - intentionally floating
+    baseY: RUNNER_BASE_Y + 120, // Air obstacle
+  },
+  {
+    id: "bangles",
+    label: "Bangles",
+    imageUrl: DUMMY_IMAGE_URL,
+    width: 64,
+    height: 64,
+    baseY: RUNNER_BASE_Y,
+  },
+]
+
+// Groom-specific obstacles
+const groomObstacles: ObstacleType[] = [
+  {
+    id: "dhol",
+    label: "Mini Dhol",
+    imageUrl: DUMMY_IMAGE_URL,
+    width: 74,
+    height: 74,
+    baseY: RUNNER_BASE_Y,
   },
   {
     id: "baraat",
     label: "Baraat Prop",
-    emoji: "🎉",
+    imageUrl: DUMMY_IMAGE_URL,
     width: 76,
     height: 80,
-    baseY: RUNNER_BASE_Y, // Ground obstacle - sits on ground baseline
+    baseY: RUNNER_BASE_Y,
+  },
+  {
+    id: "turban",
+    label: "Turban",
+    imageUrl: DUMMY_IMAGE_URL,
+    width: 70,
+    height: 70,
+    baseY: RUNNER_BASE_Y,
+  },
+  {
+    id: "shoes",
+    label: "Shoes",
+    imageUrl: DUMMY_IMAGE_URL,
+    width: 66,
+    height: 66,
+    baseY: RUNNER_BASE_Y,
   },
 ]
 
 const characterThemes = {
   bride: {
     name: "Bride",
-    emoji: "👰🏻‍♀️",
+    imageUrl: DUMMY_IMAGE_URL,
     primary: "from-rose-300/90 to-rose-500/90",
     accent: "text-rose-200",
-    cursor: createCursor("👰🏻‍♀️"),
+    cursor: createCursor(DUMMY_IMAGE_URL),
   },
   groom: {
     name: "Groom",
-    emoji: "🤵🏻‍♂️",
+    imageUrl: DUMMY_IMAGE_URL,
     primary: "from-amber-200/90 to-amber-500/90",
     accent: "text-amber-200",
-    cursor: createCursor("🤵🏻‍♂️"),
+    cursor: createCursor(DUMMY_IMAGE_URL),
   },
 } satisfies Record<
   CharacterChoice,
   {
     name: string
-    emoji: string
+    imageUrl: string
     primary: string
     accent: string
     cursor: string
   }
 >
 
-function createCursor(emoji: string) {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='24' font-size='24'>${emoji}</text></svg>`
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 16 16, auto`
+// Mandap image URL
+const MANDAP_IMAGE_URL = DUMMY_IMAGE_URL
+
+function createCursor(imageUrl: string) {
+  // Create a cursor from an image URL
+  return `url("${imageUrl}") 16 16, auto`
 }
 
 export default function MandapGame() {
@@ -168,6 +201,24 @@ export default function MandapGame() {
     resetGame()
   }
 
+  const handleSwitchCharacter = () => {
+    setCharacter(null)
+    setPhase("select")
+    setScore(0)
+    setDistance(0)
+    setObstacles([])
+    runnerXRef.current = RUNNER_START_X
+    runnerYRef.current = 0
+    velocityRef.current = 0
+    speedRef.current = BASE_SPEED
+    lastTimeRef.current = null
+    spawnTimerRef.current = 0
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current)
+      animationRef.current = null
+    }
+  }
+
   const handleJump = useCallback(() => {
     if (phase !== "running") return
     // allow new jump only when near ground
@@ -176,6 +227,9 @@ export default function MandapGame() {
   }, [phase])
 
   const spawnObstacle = useCallback((): ObstacleInstance => {
+    // Use character-specific obstacles
+    const obstacleCatalog =
+      character === "bride" ? brideObstacles : groomObstacles
     const blueprint =
       obstacleCatalog[Math.floor(Math.random() * obstacleCatalog.length)]
     // Optimal spacing: balanced between too easy and too hard
@@ -187,7 +241,7 @@ export default function MandapGame() {
       x: TRACK_WIDTH + spacing,
       uid,
     }
-  }, [])
+  }, [character])
 
   // Main animation step
   const step = useCallback(
@@ -443,9 +497,11 @@ export default function MandapGame() {
               className="group elegant-card rounded-3xl p-6 text-left transition hover:-translate-y-1 hover:shadow-2xl focus-visible:ring-4 focus-visible:ring-primary/30"
             >
               <div className="flex items-center justify-between mb-4">
-                <span className="text-5xl drop-shadow">
-                  {characterThemes[choice].emoji}
-                </span>
+                <img
+                  src={characterThemes[choice].imageUrl}
+                  alt={characterThemes[choice].name}
+                  className="w-16 h-16 drop-shadow object-contain"
+                />
                 <span className="text-xs uppercase tracking-[0.3em] text-primary/80 font-semibold">
                   Select
                 </span>
@@ -468,6 +524,26 @@ export default function MandapGame() {
 
       {character && (
         <div className="mt-10">
+          {/* Character Switch and Restart Controls */}
+          <div className="flex justify-center gap-4 mb-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSwitchCharacter}
+              className="text-primary"
+            >
+              Switch Character
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReplay}
+              className="text-primary"
+            >
+              Restart Game
+            </Button>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto mb-6 text-center text-foreground">
             <div className="elegant-card rounded-2xl px-4 py-3">
               <p className="text-[11px] uppercase tracking-[0.4em] text-primary/70">
@@ -528,7 +604,11 @@ export default function MandapGame() {
               <div
                 className={`w-16 h-24 rounded-2xl border-2 border-primary/60 flex flex-col items-center justify-center shadow-2xl backdrop-blur-sm bg-linear-to-b ${theme?.primary}`}
               >
-                <span className="text-4xl drop-shadow">{theme?.emoji}</span>
+                <img
+                  src={theme?.imageUrl}
+                  alt={theme?.name}
+                  className="w-12 h-12 drop-shadow object-contain"
+                />
                 <span className="text-[10px] uppercase tracking-[0.3em] text-primary/90 font-semibold mt-1">
                   {theme?.name}
                 </span>
@@ -544,7 +624,16 @@ export default function MandapGame() {
                 className="absolute flex flex-col items-center text-center"
                 style={{ left: obstacle.x, bottom: obstacle.baseY }}
               >
-                <div className="text-5xl drop-shadow-lg">{obstacle.emoji}</div>
+                <img
+                  src={obstacle.imageUrl}
+                  alt={obstacle.label}
+                  className="drop-shadow-lg"
+                  style={{
+                    width: `${obstacle.width}px`,
+                    height: `${obstacle.height}px`,
+                    objectFit: "contain",
+                  }}
+                />
                 <span className="mt-2 text-[10px] uppercase tracking-[0.3em] text-primary/70 bg-black/40 px-2 py-1 rounded-full">
                   {obstacle.label}
                 </span>
@@ -552,7 +641,11 @@ export default function MandapGame() {
             ))}
 
             <div className="absolute bottom-10 right-10 text-center opacity-80">
-              <div className="text-7xl drop-shadow-2xl">🏛️</div>
+              <img
+                src={MANDAP_IMAGE_URL}
+                alt="Mandap"
+                className="w-20 h-20 drop-shadow-2xl object-contain"
+              />
               <div className="mt-2 px-4 py-1 text-xs uppercase tracking-[0.35em] text-primary-foreground bg-black/50 rounded-full border border-primary/30">
                 Mandap
               </div>
@@ -589,14 +682,6 @@ export default function MandapGame() {
               </kbd>
               <span>or click track to jump</span>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleReplay}
-              className="text-primary"
-            >
-              Restart
-            </Button>
           </div>
         </div>
       )}

@@ -1,11 +1,17 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import invitationPdf from "@/invitation.pdf"
 
 export function InvitationSection() {
   const handleDownloadInvite = () => {
-    // You can implement actual download functionality here
-    console.log("Download invite clicked")
+    // Create a temporary anchor element to trigger download
+    const link = document.createElement("a")
+    link.href = invitationPdf
+    link.download = "Invitation.pdf"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   return (
@@ -35,4 +41,3 @@ export function InvitationSection() {
     </section>
   )
 }
-
